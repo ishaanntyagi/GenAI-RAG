@@ -128,12 +128,36 @@ def chunk_text(text, max_chunk_size=1000):
         if not paragraph:
             continue
             
-        # If adding this paragraph would exceed max_chunk_size, save current chunk
-        if len(current_chunk) + len(paragraph) > max_chunk_size and current_chunk:
-            chunks.append(current_chunk.strip())
-            current_chunk = paragraph
+        # If the paragraph itself is larger than max_chunk_size, split it further
+        if len(paragraph) > max_chunk_size:
+            # Save current chunk if it exists
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = ""
+            
+            # Split large paragraph by sentences
+            sentences = paragraph.split('. ')
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if not sentence:
+                    continue
+                    
+                # Add period back if it was removed
+                if not sentence.endswith('.') and sentence != sentences[-1]:
+                    sentence += '.'
+                
+                if len(current_chunk) + len(sentence) > max_chunk_size and current_chunk:
+                    chunks.append(current_chunk.strip())
+                    current_chunk = sentence
+                else:
+                    current_chunk += (" " if current_chunk else "") + sentence
         else:
-            current_chunk += (" " if current_chunk else "") + paragraph
+            # If adding this paragraph would exceed max_chunk_size, save current chunk
+            if len(current_chunk) + len(paragraph) > max_chunk_size and current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = paragraph
+            else:
+                current_chunk += (" " if current_chunk else "") + paragraph
     
     # Add the last chunk if it exists
     if current_chunk.strip():
