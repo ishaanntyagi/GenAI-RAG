@@ -10,7 +10,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 
 # ========== BLOCK 1: Streamlit UI & PDF Upload ==========
-st.title("Easy RAG PDF Chatbot (LangChain + Gemini)")
+st.title("(LangChain + Gemini)")
 
 # Upload PDF
 uploaded_file = st.file_uploader("Upload your PDF file", type=["pdf"])
@@ -24,7 +24,7 @@ if uploaded_file:
     pdf_reader = PdfReader(temp_pdf_path)
     for page in pdf_reader.pages:
         pdf_text += page.extract_text() or ""
-    st.subheader("PDF Preview (first 1500 chars)")
+    st.subheader("PDF Preview")
     st.write(pdf_text[:1500])
 
 # ========== BLOCK 2: Gemini API Key Input ==========
@@ -46,7 +46,7 @@ if uploaded_file and api_key:
     # Create vector DB using MiniLM embeddings
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vectordb = Chroma.from_documents(docs, embeddings, persist_directory="./chroma_store")
-    st.success("PDF processed! Ready for questions.")
+    st.success("PDF processed")
 
 # ========== BLOCK 4: User Question ==========
 user_question = st.text_input("Ask a question about your PDF:")
@@ -62,7 +62,7 @@ if vectordb and user_question:
     for doc in relevant_docs:
         context_chunks.append(doc.page_content)
     retrieved_context = "\n---\n".join(context_chunks)
-    st.subheader("Retrieved Context")
+    st.subheader("Retrieved Contextfor Gemini API")
     st.write(retrieved_context[:1000])
 
 # ========== BLOCK 6: Gemini Prompt & Response ==========
@@ -71,7 +71,7 @@ if api_key and retrieved_context and user_question:
     import google.generativeai as genai
     genai.configure(api_key=api_key)
     try:
-        gemini_model = genai.GenerativeModel("gemini-pro")
+        gemini_model = genai.GenerativeModel("gemini-2.0-flash-001")
         prompt = f"""Context:
 {retrieved_context}
 
@@ -79,7 +79,7 @@ Question: {user_question}
 Answer:"""
         resp = gemini_model.generate_content(prompt)
         answer = resp.text
-        st.subheader("Gemini's Answer")
+        st.subheader("Gemini's Resp")
         st.write(answer)
     except Exception as e:
         st.error(f"Gemini API Error: {e}")
@@ -111,7 +111,5 @@ if answer and uploaded_file:
     with open(out_path, "rb") as f:
         st.download_button("Download PDF with Answer", f, file_name="pdf_with_answer.pdf")
 
-# ========== BLOCK 8: Cleanup ==========
-# Remove temp files if needed (optional)
 if uploaded_file:
     os.remove(temp_pdf_path)
