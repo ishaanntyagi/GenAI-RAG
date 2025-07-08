@@ -9,10 +9,10 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 
-# ========== BLOCK 1: Streamlit UI & PDF Upload ==========
+
 st.title("(LangChain + Gemini)")
 
-# Upload PDF
+# Upload PDF @st.cache
 uploaded_file = st.file_uploader("Upload your PDF file", type=["pdf"])
 pdf_text = ""
 if uploaded_file:
@@ -30,7 +30,6 @@ if uploaded_file:
 # ========== BLOCK 2: Gemini API Key Input ==========
 api_key = st.text_input("Enter your Gemini API Key:", type="password")
 
-# ========== BLOCK 3: Chunking & Embedding ==========
 all_chunks = []
 vectordb = None
 
